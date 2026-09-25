@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 240px;
+      padding: 16px;
+      font-family: 'Segoe UI', sans-serif;
+      background: #fff;
+      color: #344054;
+    }
+
+    .title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #98a2b3;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    /* ── Row ── */
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #344054;
+    }
+
+    .sublabel {
+      font-size: 11px;
+      color: #98a2b3;
+      margin-top: 2px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      border: none;
+      border-top: 1px solid #f2f4f7;
+      margin: 4px 0 16px;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #667085;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+    }
+
+    /* ── Slider row ── */
+    .slider-row {
+      margin-bottom: 4px;
+    }
+
+    .slider-row .label {
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .slider-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slider-control input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      border-radius: 4px;
+      background: #d0d5dd;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .slider-control input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #1570ef;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .slider-control input[type="range"]::-webkit-slider-thumb:hover {
+      background: #175cd3;
+    }
+
+    .slider-value {
+      font-size: 12px;
+      font-weight: 600;
+      color: #344054;
+      min-width: 36px;
+      text-align: right;
+    }
+
+    /* ── Toggle switch ── */
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: #d0d5dd;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: #1570ef;
+    }
+
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+  </style>
+</head>
+<body>
+  <div class="title">TDX Helper</div>
+
+  <!-- Enable/Disable toggle -->
+  <div class="row">
+    <div>
+      <div class="label">Description Popup</div>
+      <div class="sublabel" id="sublabel">Loading...</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="toggle" />
+      <span class="toggle-slider"></span>
+    </label>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Settings -->
+  <div class="section-label">Settings</div>
+
+  <div class="slider-row">
+    <span class="label">Popup opacity</span>
+    <div class="slider-control">
+      <input type="range" id="opacity-slider" min="20" max="100" step="5" value="100" />
+      <span class="slider-value" id="opacity-value">100%</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
