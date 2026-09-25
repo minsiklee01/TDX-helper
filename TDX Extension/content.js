@@ -6,6 +6,7 @@ let lastTicketTitle = '';
 let savedDescription = null;
 let savedFeedEntries = [];
 let popupShown = false;
+// let isViewingTicket = false;
 
 chrome.storage.sync.get({ enabled: true, opacity: 100 }, ({ enabled, opacity }) => {
   isEnabled = enabled;
@@ -27,7 +28,6 @@ chrome.runtime.onMessage.addListener((msg) => {
 // ─── Popup ────────────────────────────────────────────────────────────────────
 
 function showPopup(descriptionHTML, feedEntries = []) {
-  document.getElementById('tdx-desc-popup')?.remove();
 
   const commentsHTML = feedEntries.map((e, i) => `
     <div class="tdx-comment ${i > 0 ? 'tdx-comment-border' : ''} ${e.isReply ? 'tdx-comment-reply' : ''}">
@@ -66,6 +66,7 @@ function showPopup(descriptionHTML, feedEntries = []) {
     </div>
   `;
   document.body.appendChild(popup);
+  popupShown = true;
 
   // comments toggle
   document.getElementById('tdx-comments-toggle')?.addEventListener('click', () => {
@@ -76,7 +77,10 @@ function showPopup(descriptionHTML, feedEntries = []) {
     arrow.textContent = isOpen ? '▶' : '▼';
   });
 
-  document.getElementById('tdx-popup-close').addEventListener('click', () => popup.remove());
+  document.getElementById('tdx-popup-close').addEventListener('click', () => {
+    // popupShown = false;
+    popup.remove();
+  });
 
   // ── Drag ──
   const header = document.getElementById('tdx-popup-header');
@@ -217,12 +221,16 @@ const titleObserver = new MutationObserver(() => {
   const title = document.title;
   // console.log('title', title);
   if (!isEnabled) return;
+  if (!window.location.href.includes('service.taylor.edu')) return;
 
   if (title.includes('Ticket Detail')) {
-    // if (title === lastTicketTitle) return;
-    // console.log('[Extension] returned - same title');
-    lastTicketTitle = title;
+    // Viewing a ticket, want to read description and feed entries here
+
     popupShown = false;
+    document.getElementById('tdx-desc-popup')?.remove();
+
+    if (title === lastTicketTitle) return;
+    lastTicketTitle = title;
 
     const match = title.match(/Ticket Detail - (\d+):/);
     const ticketId = match?.[1];
@@ -233,17 +241,14 @@ const titleObserver = new MutationObserver(() => {
 
     // const iframe = document.getElementById('tdx-right-side-pannel');
     const iframes = document.getElementsByTagName('iframe');
-
-    const filteredIframes = Array.from(iframes).filter(iframe => iframe.classList.contains('tdx-right-side-panel__iframe'))
-
+    const filteredIframes = Array.from(iframes).filter(iframe => iframe.classList.contains('tdx-right-side-panel__iframe'));
     if (filteredIframes.length !== 1) {
       console.error('[Extension] failed to retrieve iframe');
       return;
     }
-
     iframe = filteredIframes[0];
 
-    console.log(`[TDX] ticket detected: ${ticketId}`);
+    console.log(`[TDX helper] ticket detected: ${ticketId}`);
 
     waitForTicketContent(iframe, ticketId)
       .then((iframeDoc) => {
@@ -251,7 +256,7 @@ const titleObserver = new MutationObserver(() => {
         savedDescription = getDescriptionHTML(iframeDoc);
         // console.log(savedDescription);
         savedFeedEntries = getFeedEntries(iframeDoc);
-        console.log('[TDX] description loaded');
+        console.log('[TDX helper] description loaded');
 
         iframeDoc.getElementById('divUpdateFromActions')
           ?.addEventListener('click', () => {
@@ -263,15 +268,10 @@ const titleObserver = new MutationObserver(() => {
 
   } else if (title.includes('Update')) {
     if (popupShown) return;
-    popupShown = true;
-    console.log('[TDX] showing popup');
+    console.log('[TDX helper] showing popup');
     showPopup(savedDescription, savedFeedEntries);
 
-  } else if (title.includes('Main')) {
-    lastTicketTitle = '';
-    savedDescription = null;
-    savedFeedEntries = [];
-    popupShown = false;
+  } else {
     document.getElementById('tdx-desc-popup')?.remove();
   }
 });
